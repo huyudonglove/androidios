@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title id="t1"></title>
+    <style>
+        body{
+            padding:0;
+            margin: 0;
+            overflow-x: hidden;
+            height:100%;
+        }
+        .container1{
+            height:13.5rem;
+            background: url(./image/3.png) no-repeat center;
+            background-size:auto 100%;
+            position: relative;
+            width:100%;
+        }
+        html{
+           font-size:20px;
+        }
+        .showGray1{
+            opacity:0.5;background-color:#000;position: absolute;width:100%;height:100%;z-index: 99;right: 0px;
+        }
+        .container2{
+            height:13.5rem;
+            position: relative;
+            width: 100%;
+            background: url(./image/2.png) no-repeat center;
+            background-size: auto 100%;
+        }
+        .container3{
+            height:13.5rem;
+            position: relative;
+            width: 100%;
+            background: url(./image/1.png) no-repeat center;
+            background-size:auto 100%;
+        }
+        .showGray2{
+            opacity:0.3;background-color:#000;position: absolute;width:100%;height:100%;z-index: 99;right: 0px;
+        }
+        .showGray3{
+            opacity:0.3;background-color:#000;position: absolute;width:100%;height:100%;z-index: 99;right: 0px;
+        }
+        .div-text{
+            position: absolute;
+            bottom:2rem;
+            right:1rem;
+            color:balck;
+            z-index:60;
+            }
+        .div-status{
+            position: absolute;
+            bottom:0rem;
+            right:1rem;
+            color:black;
+            z-index:60;
+            }
+            img{
+                position: absolute; 
+                width:100%;
+            
+            }
+    </style>
+</head>
+<body>
+    <div class='container1' id='d1' onClick="judgeStatus('d1')">
+        <div class='showGray1' id='s1'>
+        </div>
+        <!-- <img src='./image/3.png' style="border: 2px solid red;"> -->
+        <div class='div-status' id='w1'></div>
+        <div class='div-text' id='t11'></div>
+    </div>
+    <div class='container2' id='d2' onClick="judgeStatus('d2')">
+        <div class='showGray2' id='s2'>
+        </div>
+        <!-- <img src='./image/2.png' width="auto" height="100%"> -->
+        <div class='div-status' id='w2'></div>
+        <div class='div-text' id='t2'></div>
+    </div>
+    <div class='container3' id='d3' onClick="judgeStatus('d3')">
+        <div class='showGray3' id='s3'>
+        </div>
+        <!-- <img src='./image/1.png' width="auto" height="100%"> -->
+        <div class='div-status' id='w3'></div>
+        <div class='div-text' id='t3'></div>
+    </div>
+    
+</body>
+<script>
+    var u = navigator.userAgent; 
+    var isAndroid = u.includes('Android');; //android终端 
+    var isIos = u.includes('Mac OS X'); //ios终端 
+    
+    var d1=document.getElementById('d1');
+    var d2=document.getElementById('d2');
+    var d3=document.getElementById('d3');
+    var s1=document.getElementById('s1');
+    var s2=document.getElementById('s2');
+    var s3=document.getElementById('s3');
+    var t11=document.getElementById('t11');
+    var t2=document.getElementById('t2');
+    var t3=document.getElementById('t3');
+    console.log(window.location.search)
+    var url=window.location.search;
+    console.log(url.split('?')[1].split('&'));
+    var allId=url.split('?')[1].split('&');
+   var total={
+       d1:{
+           appId:allId[0]||'',
+           progress:'',
+           status:''
+       },
+       d2:{
+           appId:allId[1]||'',
+           progress:'',
+           status:''
+       },
+       d3:{
+           appId:allId[2]||'',
+           progress:'',
+           status:''
+       },
+   }
+   console.log(total)
+    if (isAndroid) {
+        queryDownloadStatusAndroid();
+        getTitleAndroid();
+    }
+    if (isIos) {
+        //设置接收下载进度方法
+        receiveDownloadProgress();
+
+        //自动查询应用状态
+        queryDownloadStatus();
+        //获取网页标题
+        getWebpageTitle();
+    }
+    /**
+         *  获取网页标题
+         */
+         function getWebpageTitle() {
+            window.JXBJSBridge.call({
+                target : "download",
+                action : "getWebpageTitle",
+                data : {},
+                callback : {
+                    success : function(result) {
+                        //{"title":"AR宠物","result":"success"}
+                        document.getElementById('t1').innerHTML = JSON.parse(result)["title"];
+                    }
+                }
+            });
+        }
+    /*获取标题安卓*/
+    function getTitleAndroid() {
+        var re=window.AndroidWebView.getTitle();
+        document.getElementById('t1').innerHTML = re;
+    }    
+    /**
+     *  接收下载进度
+     */
+    function receiveDownloadProgress() {
+        window.JXBJSBridge.call({
+            target : "download",
+            action : "receiveDownloadProgress",
+            data : {},
+            callback : {
+                progress : function(result) {
+                    const re =JSON.parse(result);
+                    if(re.appId==total.d1.appId){
+                        drawDiv('d1',re.progress);
+                        total.d1.status=re.status;
+                        changeText(re.appId,re.status);
+                    }
+                    if(re.appId==total.d2.appId){
+                        drawDiv('d2',re.progress);
+                        total.d2.status=re.status;
+                        changeText(re.appId,re.status);
+                    }
+                    if(re.appId==total.d3.appId){
+                        drawDiv('d3',re.progress);
+                        total.d3.status=re.status;
+                        changeText(re.appId,re.status);
+                    }   
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                }
+            }
+        });
+    }
+    /*接收安卓进度*/
+    function receiveDownloadProgressAndroid(result) {
+        const re =JSON.parse(result).data;
+        showLog(result);
+        if(re.appId==total.d1.appId){
+            drawDiv('d1',re.progress);
+            total.d1.status=re.status;
+            showPeople('t11',re.useCount);
+            changeText(re.appId,re.status);
+        }
+        if(re.appId==total.d2.appId){
+            drawDiv('d2',re.progress);
+            total.d2.status=re.status;
+            showPeople('t2',re.useCount)
+            changeText(re.appId,re.status);
+        }
+        if(re.appId==total.d3.appId){
+            drawDiv('d3',re.progress);
+            total.d3.status=re.status;
+            showPeople('t3',re.useCount)
+            changeText(re.appId,re.status);
+        }   
+        //document.getElementById('message').innerHTML = result;
+        showLog('77');
+        console.log(result)
+        //startDownloadAppAndroid('431e68190e78470ab189f897eca92950')
+    }
+    /**
+     *  查询应用下载状态
+     */
+    function queryDownloadStatus() {
+        //document.getElementById('message').innerHTML = "";
+        let id=allId;
+        window.JXBJSBridge.call({
+            target : "download",
+            action : "queryDownloadStatus",
+            data : {
+                "appIds" : id
+            },
+            callback : {
+                success : function(result) {
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                    const re=JSON.parse(result);    
+                    const data=re.data;
+                    data.map(v=>{
+                        if(v.appId==total.d1.appId){
+                            total.d1.status=v.status;
+                            total.d1.progress=v.progress;
+                            drawDiv('d1',v.progress);
+                            showPeople('t11',v.useCount)
+                            changeText(v.appId,v.status);
+                        }
+                        if(v.appId==total.d2.appId){
+                            total.d2.status=v.status;
+                            total.d2.progress=v.progress;
+                            drawDiv('d2',v.progress);
+                            showPeople('t2',v.useCount)
+                            changeText(v.appId,v.status);
+                        }
+                        if(v.appId==total.d3.appId){
+                            total.d3.status=v.status;
+                            total.d3.progress=v.progress;
+                            drawDiv('d3',v.progress);
+                            showPeople('t3',v.useCount)
+                            changeText(v.appId,v.status);
+                        }
+                    })
+                    
+                },
+                fail : function(result) {
+                // document.getElementById('message').innerHTML = result;
+                },
+            }
+        });
+    }
+    /*查询应用下载状态安卓*/
+    function queryDownloadStatusAndroid() {
+        //document.getElementById('message').innerHTML = "";
+        let id=allId;
+        window.AndroidWebView.queryDownloadStatus(id);
+    }
+
+    /**
+     *  开始下载应用
+     */
+    function startDownloadApp(appId) {
+        console.log(appId,777)
+        window.JXBJSBridge.call({
+            target : "download",
+            action : "startDownloadApp",
+            data : {
+                "appId" : appId
+            },
+            callback : {
+                success : function(result) {
+                   // document.getElementById('message').innerHTML = result;
+                   changeText(appId,1);
+                },
+                fail : function(result) {
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                }
+            }
+        });
+    }
+    /*开始下载应用安卓*/
+    function startDownloadAppAndroid(appId) {
+        console.log(appId,777)
+        changeText(appId,1);
+        window.AndroidWebView.startDownloadApp(appId);
+    }
+    /**
+     *  停止下载应用
+     */
+    function stopDownloadApp(appId) {
+        window.JXBJSBridge.call({
+            target : "download",
+            action : "stopDownloadApp",
+            data : {
+                "appId" : appId //"e74d1ede6a404c82bdd242b41cbedc4e"
+            },
+            callback : {
+                success : function(result) {
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                    const re =JSON.parse(result);
+                    if(re.appId==total.d1.appId){
+                        drawDiv('d1',re.progress);
+                        total.d1.status=re.status;
+                        changeText(re.appId,re.status);
+                    }
+                    if(re.appId==total.d2.appId){
+                        drawDiv('d2',re.progress);
+                        total.d2.status=re.status;
+                        changeText(re.appId,re.status);
+                    }
+                    if(re.appId==total.d3.appId){
+                        drawDiv('d3',re.progress);
+                        total.d3.status=re.status;
+                        changeText(re.appId,re.status);
+                    }
+                },
+                fail : function(result) {
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                }
+            }
+        });
+    }
+    /*停止下载应用安卓*/
+    function stopDownloadAppAndroid(appId) {
+        changeText(appId,2);
+        window.AndroidWebView.stopDownloadApp(appId);
+    }
+    /**
+     *  打开应用
+     */
+    function openApp(appId) {
+        window.JXBJSBridge.call({
+            target : "download",
+            action : "openApp",
+            data : {
+                "appId" : appId//"e74d1ede6a404c82bdd242b41cbedc4e"
+            },
+            callback : {
+                success : function(result) {
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                },
+                fail : function(result) {
+                    //document.getElementById('message').innerHTML = result;
+                    console.log(result)
+                }
+            }
+        });
+    }
+    /*打开应用安卓*/
+    function openAppAndroid(appId) {
+        window.AndroidWebView.openApp(appId);
+    }
+    //判断状态
+    function judgeStatus(id){
+      // showLog(id)
+       //showLog('88')
+       let statusCopy=total[id].status;
+       //showLog(statusCopy)
+       let appId=total[id].appId; 
+    //    showLog(appId)
+    // //    showLog(isIos)
+    //    showLog(isAndroid)
+       if(isIos){
+            if(statusCopy==0){
+                //未下载
+                startDownloadApp(appId); 
+            }else if(statusCopy==1){
+                    //正在下载
+                    stopDownloadApp(appId)
+            }else if(statusCopy==2){
+                //暂停下载
+                startDownloadApp(appId);
+
+            }else if(statusCopy==3){
+                    //下载完成
+                    console.log(777777)
+                    openApp(appId);
+            }else if(statusCopy==4){
+                    //下载出错
+                    startDownloadApp(appId); 
+            }else if(statusCopy==5){
+                    //需要更新
+                    startDownloadApp(appId);
+            }else if(statusCopy==6){
+                    //资源缺失
+                    startDownloadApp(appId); 
+            }
+       }
+       
+       if(isAndroid){
+            if(statusCopy==0){
+                //未下载
+                showLog('0')
+                startDownloadAppAndroid(appId);
+                 
+            }else if(statusCopy==1){
+                    //正在下载
+                    showLog('1')
+                    stopDownloadAppAndroid(appId)
+            }else if(statusCopy==2){
+                //暂停下载
+                showLog('2')
+                startDownloadAppAndroid(appId);
+
+            }else if(statusCopy==3){
+                    //下载完成
+                    showLog('3')
+                    console.log(777777)
+                    openAppAndroid(appId);
+            }else if(statusCopy==4){
+                    //下载出错
+                    showLog('4')
+                    startDownloadAppAndroid(appId); 
+            }else if(statusCopy==5){
+                    //需要更新
+                    showLog('5')
+                    startDownloadAppAndroid(appId);
+            }else if(statusCopy==6){
+                    //资源缺失
+                    showLog('6')
+                    startDownloadAppAndroid(appId); 
+            }
+       }
+    }
+    //渲染页面
+    function drawDiv(id,per){
+        var perC=per.toFixed(2);
+        console.log(perC)
+        if(id=='d1'){
+            let offsetWidth1=d1.offsetWidth;
+            console.log(offsetWidth1)
+            s1.style.width=(offsetWidth1-perC*offsetWidth1)+'px'
+        }
+        if(id=='d2'){
+            let offsetWidth2=d2.offsetWidth;
+            console.log(offsetWidth2)
+            s2.style.width=(offsetWidth2-perC*offsetWidth2)+'px'
+        }
+        if(id=='d3'){
+            let offsetWidth3=d3.offsetWidth;
+            s3.style.width=(offsetWidth3-perC*offsetWidth3)+'px'
+        }
+    }
+    console.log(s1.offsetWidth,s2.offsetWidth,s3.offsetWidth)
+    //设置文字显示
+    function changeText(appId,status){
+        if(appId==total.d1.appId){
+            if(status==0){
+                w1.innerText='未下载'
+            }
+            if(status==1){
+                w1.innerText='正在下载'
+            }
+            if(status==2){
+                w1.innerText='暂停下载'
+            }
+            if(status==3){
+                w1.innerText='下载完成'
+            }
+            if(status==4){
+                w1.innerText='下载出错'
+            }
+            if(status==5){
+                w1.innerText='需要更新'
+            }
+            if(status==6){
+                w1.innerText='资源缺失'
+            }
+            
+        }
+        if(appId==total.d2.appId){
+            if(status==0){
+                w2.innerText='未下载'
+            }
+            if(status==1){
+                w2.innerText='正在下载'
+            }
+            if(status==2){
+                w2.innerText='暂停下载'
+            }
+            if(status==3){
+                w2.innerText='下载完成'
+            }
+            if(status==4){
+                w2.innerText='下载出错'
+            }
+            if(status==5){
+                w2.innerText='需要更新'
+            }
+            if(status==6){
+                w2.innerText='资源缺失'
+            }
+        }
+        if(appId==total.d3.appId){
+            if(status==0){
+                w3.innerText='未下载'
+            }
+            if(status==1){
+                w3.innerText='正在下载'
+            }
+            if(status==2){
+                w3.innerText='暂停下载'
+            }
+            if(status==3){
+                w3.innerText='下载完成'
+            }
+            if(status==4){
+                w3.innerText='下载出错'
+            }
+            if(status==5){
+                w3.innerText='需要更新'
+            }
+            if(status==6){
+                w3.innerText='资源缺失'
+            }
+        }
+    }
+    //android
+    function showLog(aa){
+        window.AndroidWebView.showLog(aa);
+    }
+    //startDownloadAppAndroid('431e68190e78470ab189f897eca92950');
+    function aa(a){
+        showLog(a)
+    }
+    //观看人数
+    function showPeople(id,num){
+        document.getElementById(id).innerHTML=num+'玩过'
+    }
+    function getHeight(){
+
+    }
+</script>
+</html>

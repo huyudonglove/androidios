@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>测试网页</title>
+        <meta name="viewport" content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" charset="UTF-8"/>
+            <style type="text/css">
+                *{
+                    margin:  0;
+                    padding: 0;
+                }
+            .box{
+                margin-top: 50px;
+                text-align: center;
+            }
+            .btn{
+                line-height: 44px;
+                text-align: center;
+                font-size: 14px;
+                border: 1px solid blue;
+                background-color: #fff;
+                margin-bottom: 20px;
+                padding: 0 10px;
+            }
+            .message{
+                position: fixed;
+                padding: 20px;
+                margin-top: 100px;
+                word-break: break-all;
+                word-wrap: break-word;
+                font-size: 16px;
+                color: #000;
+            }
+            </style>
+            
+    </head>
+    <body>
+        <div class="box">
+            <!--button class="btn" id="J_APIMethod" onclick="queryDownloadStatus();">查询应用状态</button><br/-->
+            <button class="btn" id="J_APIMethod" onclick="startDownloadApp();">开始下载应用</button><br/>
+            <button class="btn" id="J_APIMethod" onclick="stopDownloadApp();">停止下载应用</button><br/>
+            <button class="btn" id="J_APIMethod" onclick="openApp();">打开AR应用</button><br/>
+        </div>
+        <div class="message" id="message"></div>
+        
+        <script>
+
+        //设置接收下载进度方法
+        receiveDownloadProgress();
+
+        //自动查询应用状态
+        queryDownloadStatus();
+
+        /*
+            下载状态：
+            Normal = 0,       // 未下载状态
+            Downloading = 1,  // 正在下载
+            Paused = 2,       // 暂停下载
+            Complete = 3,     // 下载完成
+            Error = 4,        // 下载出错
+            Update = 5,       // 需要更新
+        */
+
+        /**
+         *  接收下载进度
+         */
+        function receiveDownloadProgress() {
+            window.JXBJSBridge.call({
+                target : "download",
+                action : "receiveDownloadProgress",
+                data : {},
+                callback : {
+                    progress : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    }
+                }
+            });
+        }
+
+        /**
+         *  查询应用下载状态
+         */
+        function queryDownloadStatus() {
+            document.getElementById('message').innerHTML = "";
+            window.JXBJSBridge.call({
+                target : "download",
+                action : "queryDownloadStatus",
+                data : {
+                    "appIds" : [  //应用id列表
+                        "e74d1ede6a404c82bdd242b41cbedc4e"
+                    ]
+                },
+                callback : {
+                    success : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    },
+                    fail : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    },
+                }
+            });
+        }
+        
+        /**
+         *  开始下载应用
+         */
+        function startDownloadApp() {
+            window.JXBJSBridge.call({
+                target : "download",
+                action : "startDownloadApp",
+                data : {
+                    "appId" : "e74d1ede6a404c82bdd242b41cbedc4e"
+                },
+                callback : {
+                    success : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    },
+                    fail : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    }
+                }
+            });
+        }
+
+        /**
+         *  停止下载应用
+         */
+        function stopDownloadApp() {
+            window.JXBJSBridge.call({
+                target : "download",
+                action : "stopDownloadApp",
+                data : {
+                    "appId" : "e74d1ede6a404c82bdd242b41cbedc4e"
+                },
+                callback : {
+                    success : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    },
+                    fail : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    }
+                }
+            });
+        }
+
+        /**
+         *  打开应用
+         */
+        function openApp() {
+            window.JXBJSBridge.call({
+                target : "download",
+                action : "openApp",
+                data : {
+                    "appId" : "e74d1ede6a404c82bdd242b41cbedc4e"
+                },
+                callback : {
+                    success : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    },
+                    fail : function(result) {
+                        document.getElementById('message').innerHTML = result;
+                    }
+                }
+            });
+        }
+
+        </script>
+    </body>
+</html>

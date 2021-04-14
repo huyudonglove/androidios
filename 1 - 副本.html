@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>xxxxx</title>
+    <style>
+        main{
+            width: 100%;
+        }
+        .showBox{
+            height:120px;
+            width: 100%;
+            background: url('./33321.gif') no-repeat;
+            position: relative;
+        }
+        .showGray{
+            opacity:0.3;background-color:#000;position: absolute;width:100%;z-index: 99;height: 120px;right: 0px;
+        }
+    </style>
+  </head>
+  <body>
+   
+   <div style="width: 350px;">
+    <main>
+        <div class="showBox">
+            111111111
+            <div class="showGray" id="showBox" style="width: 350px;"></div>
+        </div>
+    </main>
+   </div>
+   <script>
+       let percentage=0;
+       let showBox=document.getElementById('showBox');
+       let offsetWidth=showBox.offsetWidth;
+       let time=null;
+       function setTime(){
+        showBox.style.width=(offsetWidth-percentage*offsetWidth)+'px'
+        percentage +=0.05
+        if(percentage>=1.0){
+       showBox.style.width=0+'px'
+        clearInterval(time)
+       }
+       }
+       time=setInterval("setTime()",1000)
+       
+   </script>
+  </body>
+</html>
